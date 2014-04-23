@@ -1,4 +1,6 @@
-# Aspects of Go: How slow is reflection and How types of a function affect its performance
+# Aspects of Go
+
+How slow is reflection and how types of a function affect its performance.
 
 Bellow are some benchmarks designed to explore the performance of reflection package and of arguments of different types in functions, for Go.
 
