@@ -61,8 +61,7 @@ func BenchmarkStandbardLastFiveFields(b *testing.B) {
 	}
 }
 
-type TenFields struct {
-}
+type TenFields struct{}
 
 func (f TenFields) Field1()  {}
 func (f TenFields) Field2()  {}

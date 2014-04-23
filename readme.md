@@ -50,19 +50,126 @@ func BenchmarkStandbardLastFiveFields(b *testing.B) {
 
 And running result is:
 
-Reflection:
+Access first field:
 
-![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-reflection.png)
-![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-reflection-plot.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-first.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-first-plot.png)
 
-Non-reflection:
+Access last field:
 
-![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-standard.png)
-![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-standard-plot.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-last.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-last-plot.png)
 
 ### Access methods via reflection
 
+Similar to fields in structs while fields is replaces by methods, a benchmark example:
+
+```
+type TenFields struct {}
+
+func (f TenFields) Field1()  {}
+func (f TenFields) Field2()  {}
+func (f TenFields) Field3()  {}
+func (f TenFields) Field4()  {}
+func (f TenFields) Field5()  {}
+func (f TenFields) Field6()  {}
+func (f TenFields) Field7()  {}
+func (f TenFields) Field8()  {}
+func (f TenFields) Field9()  {}
+func (f TenFields) Field10() {}
+
+func BenchmarkReflectTenFields(b *testing.B) {
+	foo := reflect.ValueOf(TenFields{})
+	for i := 0; i < b.N; i++ {
+		foo.MethodByName("Field1").Call(nil)
+	}
+}
+
+func BenchmarkStandbardTenFields(b *testing.B) {
+	foo := TenFields{}
+	for i := 0; i < b.N; i++ {
+		foo.Field1()
+	}
+}
+
+func BenchmarkReflectLastTenFields(b *testing.B) {
+	foo := reflect.ValueOf(TenFields{})
+	for i := 0; i < b.N; i++ {
+		foo.MethodByName("Field10").Call(nil)
+	}
+}
+
+func BenchmarkStandbardLastTenFields(b *testing.B) {
+	foo := TenFields{}
+	for i := 0; i < b.N; i++ {
+		foo.Field10()
+	}
+}
+```
+
+Access first method:
+
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/methods-first.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/methods-first-plot.png)
+
+Access last method:
+
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/methods-last.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/methods-last-plot.png)
+
 ## Different types have different performances
+
+Benchmark example:
+
+```
+func NoIntArg()                                                                  {}
+func OneIntArg(arg int)                                                          {}
+func FiveIntArgs(arg1, arg2, arg3, arg4, arg5 int)                               {}
+func TenIntArgs(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 int) {}
+func FifteenIntArgs(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15 int) {
+}
+func TwentyIntArgs(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20 int) {
+}
+
+func BenchmarkNoIntArg(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		NoIntArg()
+	}
+}
+
+func BenchmarkOneIntArg(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		OneIntArg(0)
+	}
+}
+
+func BenchmarkFiveIntArgs(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FiveIntArgs(0, 0, 0, 0, 0)
+	}
+}
+
+func BenchmarkTenIntArgs(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		TenIntArgs(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	}
+}
+
+func BenchmarkFifteenIntArgs(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FifteenIntArgs(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	}
+}
+
+func BenchmarkTwentyIntArgs(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		TwentyIntArgs(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	}
+}
+```
+
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/funcargs.png)
+![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/funcargs-plot.png)
 
 ## Conclusion
 
