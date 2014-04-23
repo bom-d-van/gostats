@@ -62,6 +62,8 @@ Access last field:
 ![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-last.png)
 ![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/fields-last-plot.png)
 
+From the data, we could see that reflection is almost always slower than a typical access in 2 factors. What's more, with the increase in the number of fields, accessing fields that are written near the bottom of the field list, it's slower.
+
 ### Access methods via reflection
 
 Similar to fields in structs while fields is replaces by methods, a benchmark example:
@@ -119,9 +121,11 @@ Access last method:
 ![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/methods-last.png)
 ![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/methods-last-plot.png)
 
-## Different types have different performances
+Accessing struct methods via reflection has similar benchmark results like accessing fields. It's slow and methods that get parsed later are more slower when being accessed by reflection.
 
-Benchmark example:
+## How types and numbers of function arguments affect performance
+
+Int Benchmark example:
 
 ```
 func NoIntArg()                                                                  {}
@@ -173,6 +177,10 @@ func BenchmarkTwentyIntArgs(b *testing.B) {
 ![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/funcargs.png)
 ![](https://raw.githubusercontent.com/bom-d-van/gostats/master/imgs/funcargs-plot.png)
 
+The most interesting fact of these benchmarks is that for most types, the number of function arguments do not slower down a function significantly. The exceptions are map and big structs.
+
+Actually, we could find out that map is actually a very expensive data structure, at least for calling functions / methods.
+
 ## Conclusion
 
 Reflection is indeed slow.
@@ -184,3 +192,27 @@ The result of this exploration is actually not surprising at all. We do know ref
 These not-yet-complete benchmarks could also serve as a simple guide line when designing programs.
 
 This post has no intension to discourage any usage of so-called costly things. But I think as a programmer, when we are designing something, we should understand what we are actually doing. Using inappropriate data structure or over complicated design is wrong indeed.
+
+For example, when we need to pass data to template (the standard library text/template). It's very convenient that we could just use a map as a container like this:
+
+```
+data := map[string]interface{}{
+	"Post": post,
+	"Author": author,
+	"Age", age,
+}
+```
+
+But actually, using a anonymous struct is way better:
+
+```
+data := struct {
+	Post PostType
+	Author AuthorType
+	Age int
+}{post, author, age}
+```
+
+No only it's cheap, but also it's more clear and useful. And when you are using the data incorrectly in your template, it will fail loudly to attract your attention and help you locate and debug the problem efficiently. For example, text/template will panic when you do {{.NonexistField}} when the data is a struct but do nothing when it's a map.
+
+Suggestions and corrections are always welcome. Thanks for your reading.
